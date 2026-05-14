@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { BorrowRequest, BorrowRequestStatus } from './borrow-request.entity';
 import { Book, BookStatus } from '../books/books.entity';
 import { User } from '../users/users.entity';
-// import { BorrowedBooksService } from '../borrowed-books/borrowed-books.service';
+import { BorrowedBooksService } from '../borrowed-books/borrowed-books.service';
 
 @Injectable()
 export class BorrowRequestsService {
@@ -13,7 +13,7 @@ export class BorrowRequestsService {
     private readonly borrowRequestRepository: Repository<BorrowRequest>,
     @InjectRepository(Book)
     private readonly bookRepository: Repository<Book>,
-    // private readonly borrowedBooksService: BorrowedBooksService,
+    private readonly borrowedBooksService: BorrowedBooksService,
   ) {}
 
   async createRequest(userId: number, bookId: number, notes?: string): Promise<BorrowRequest> {
@@ -27,10 +27,10 @@ export class BorrowRequestsService {
     }
 
   
-    // const hasActiveBorrow = await this.borrowedBooksService.hasActiveBorrow(userId, bookId);
-    // if (hasActiveBorrow) {
-    //   throw new Error('You already have this book borrowed and cannot request it again');
-    // }
+    const hasActiveBorrow = await this.borrowedBooksService.hasActiveBorrow(userId, bookId);
+    if (hasActiveBorrow) {
+      throw new Error('You already have this book borrowed and cannot request it again');
+    }
 
     const existingRequest = await this.borrowRequestRepository.findOne({
       where: { userId, bookId, status: BorrowRequestStatus.PENDING }
@@ -90,7 +90,7 @@ export class BorrowRequestsService {
     await this.bookRepository.save(book);
 
 
-    // await this.borrowedBooksService.createBorrow(request.userId, book.id);
+    await this.borrowedBooksService.createBorrow(request.userId, book.id);
 
 
     request.status = BorrowRequestStatus.APPROVED;
