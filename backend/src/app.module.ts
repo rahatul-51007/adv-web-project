@@ -7,6 +7,7 @@ import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm/dist/typeorm.module';
 import { AuthModule } from './auth/auth.module';
 import { BooksModule } from './books/books.module';
+import { BorrowRequestsModule } from './borrow-requests/borrow-requests.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { BooksModule } from './books/books.module';
     UsersModule,
     AuthModule,
     BooksModule,
+    BorrowRequestsModule,
   ],
   controllers: [],
   providers: [],
