@@ -5,7 +5,7 @@ import { Book, BookStatus } from './books.entity';
 import { User } from '../users/users.entity';
 import { BorrowRequest } from '../borrow-requests/borrow-request.entity';
 import { BorrowedBook } from '../borrowed-books/borrowed-book.entity';
-// import { ReturnRequest } from '../return-requests/return-request.entity';
+import { ReturnRequest } from '../return-requests/return-request.entity';
 
 @Injectable()
 export class BooksService {
@@ -16,8 +16,8 @@ export class BooksService {
     private readonly borrowRequestRepository: Repository<BorrowRequest>,
     @InjectRepository(BorrowedBook)
     private readonly borrowedBookRepository: Repository<BorrowedBook>,
-    // @InjectRepository(ReturnRequest)
-    // private readonly returnRequestRepository: Repository<ReturnRequest>,
+    @InjectRepository(ReturnRequest)
+    private readonly returnRequestRepository: Repository<ReturnRequest>,
   ) {}
 
   async create(bookData: Partial<Book>): Promise<Book> {
@@ -71,7 +71,7 @@ export class BooksService {
     
     
     await this.borrowRequestRepository.delete({ bookId: id });
-    // await this.returnRequestRepository.delete({ bookId: id });
+    await this.returnRequestRepository.delete({ bookId: id });
     await this.borrowedBookRepository.delete({ bookId: id });
     
     await this.bookRepository.remove(book);

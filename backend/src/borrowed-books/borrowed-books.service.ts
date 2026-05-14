@@ -79,12 +79,12 @@ export class BorrowedBooksService {
       throw new Error('Book is already returned');
     }
 
-    // Update book availability
+
     const book = borrowedBook.book;
     book.availableCopies += 1;
     await this.bookRepository.save(book);
 
-    // Update borrow record
+
     borrowedBook.returnDate = new Date();
     borrowedBook.status = BorrowStatus.RETURNED;
     return this.borrowedBookRepository.save(borrowedBook);

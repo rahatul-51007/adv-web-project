@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { BooksModule } from './books/books.module';
 import { BorrowRequestsModule } from './borrow-requests/borrow-requests.module';
 import { BorrowedBooksModule } from './borrowed-books/borrowed-books.module';
+import { ReturnRequestsModule } from './return-requests/return-requests.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { BorrowedBooksModule } from './borrowed-books/borrowed-books.module';
     BooksModule,
     BorrowRequestsModule,
     BorrowedBooksModule,
+    ReturnRequestsModule,
   ],
   controllers: [],
   providers: [],
