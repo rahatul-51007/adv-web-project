@@ -10,6 +10,7 @@ import { BooksModule } from './books/books.module';
 import { BorrowRequestsModule } from './borrow-requests/borrow-requests.module';
 import { BorrowedBooksModule } from './borrowed-books/borrowed-books.module';
 import { ReturnRequestsModule } from './return-requests/return-requests.module';
+import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { ReturnRequestsModule } from './return-requests/return-requests.module';
     BorrowRequestsModule,
     BorrowedBooksModule,
     ReturnRequestsModule,
+    EmailModule,
   ],
   controllers: [],
   providers: [],

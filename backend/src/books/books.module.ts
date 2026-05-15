@@ -10,8 +10,13 @@ import { ReturnRequest } from '../return-requests/return-request.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Book, BorrowRequest, BorrowedBook, ReturnRequest]), 
-    BorrowRequestsModule
+    TypeOrmModule.forFeature([
+      Book,
+      BorrowRequest,
+      BorrowedBook,
+      ReturnRequest,
+    ]),
+    BorrowRequestsModule,
   ],
   providers: [BooksService],
   controllers: [BooksController],

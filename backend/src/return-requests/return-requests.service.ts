@@ -1,4 +1,8 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ReturnRequest, ReturnRequestStatus } from './return-request.entity';
@@ -13,21 +17,30 @@ export class ReturnRequestsService {
     private readonly borrowedBooksService: BorrowedBooksService,
   ) {}
 
-  async createReturnRequest(userId: number, borrowId: number): Promise<ReturnRequest> {
+  async createReturnRequest(
+    userId: number,
+    borrowId: number,
+  ): Promise<ReturnRequest> {
     const borrowedBook = await this.borrowedBooksService.findById(borrowId);
     if (!borrowedBook || borrowedBook.userId !== userId) {
-      throw new BadRequestException('Borrow record not found or does not belong to the current user');
+      throw new BadRequestException(
+        'Borrow record not found or does not belong to the current user',
+      );
     }
 
     if (borrowedBook.status !== BorrowStatus.ACTIVE) {
-      throw new BadRequestException('Only active borrowed books can be returned');
+      throw new BadRequestException(
+        'Only active borrowed books can be returned',
+      );
     }
 
     const existing = await this.returnRequestRepository.findOne({
       where: { borrowId, status: ReturnRequestStatus.PENDING },
     });
     if (existing) {
-      throw new BadRequestException('A return request for this borrowed book is already pending');
+      throw new BadRequestException(
+        'A return request for this borrowed book is already pending',
+      );
     }
 
     const returnRequest = this.returnRequestRepository.create({

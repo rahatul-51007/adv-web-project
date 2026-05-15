@@ -1,4 +1,15 @@
-import { Controller, Get, Param, Post, Query, UseGuards, Body , Put, Delete, Req} from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+  Body,
+  Put,
+  Delete,
+  Req,
+} from '@nestjs/common';
 import { BooksService } from './books.service';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles/roles.guard';
@@ -9,26 +20,26 @@ import { BorrowRequestsService } from '../borrow-requests/borrow-requests.servic
 @Controller('books')
 @UseGuards(JwtGuard, RolesGuard)
 export class BooksController {
-    constructor(
-        private readonly booksService: BooksService,
-        private readonly borrowRequestsService: BorrowRequestsService
-    ) {}
+  constructor(
+    private readonly booksService: BooksService,
+    private readonly borrowRequestsService: BorrowRequestsService,
+  ) {}
 
-    @Post()
-    @Roles(Role.ADMIN)
-    async create(@Body() bookData:any) {
-     return this.booksService.create(bookData);
-    }
+  @Post()
+  @Roles(Role.ADMIN)
+  async create(@Body() bookData: any) {
+    return this.booksService.create(bookData);
+  }
 
-    @Get()
-    @Roles(Role.ADMIN, Role.MEMBER)
-    async findAll() {
-     return this.booksService.findAll();
-   }
+  @Get()
+  @Roles(Role.ADMIN, Role.MEMBER)
+  async findAll() {
+    return this.booksService.findAll();
+  }
 
-   @Get('search')
-   @Roles(Role.ADMIN, Role.MEMBER)
-   async search(@Query('q') query: string) {
+  @Get('search')
+  @Roles(Role.ADMIN, Role.MEMBER)
+  async search(@Query('q') query: string) {
     return this.booksService.searchBooks(query);
   }
   @Get(':id')

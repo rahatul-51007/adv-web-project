@@ -16,8 +16,11 @@ export class BorrowRequestsService {
     private readonly borrowedBooksService: BorrowedBooksService,
   ) {}
 
-  async createRequest(userId: number, bookId: number, notes?: string): Promise<BorrowRequest> {
-
+  async createRequest(
+    userId: number,
+    bookId: number,
+    notes?: string,
+  ): Promise<BorrowRequest> {
     const book = await this.bookRepository.findOne({ where: { id: bookId } });
     if (!book) {
       throw new Error('Book not found');
@@ -26,14 +29,18 @@ export class BorrowRequestsService {
       throw new Error('Book is not available for borrowing');
     }
 
-  
-    const hasActiveBorrow = await this.borrowedBooksService.hasActiveBorrow(userId, bookId);
+    const hasActiveBorrow = await this.borrowedBooksService.hasActiveBorrow(
+      userId,
+      bookId,
+    );
     if (hasActiveBorrow) {
-      throw new Error('You already have this book borrowed and cannot request it again');
+      throw new Error(
+        'You already have this book borrowed and cannot request it again',
+      );
     }
 
     const existingRequest = await this.borrowRequestRepository.findOne({
-      where: { userId, bookId, status: BorrowRequestStatus.PENDING }
+      where: { userId, bookId, status: BorrowRequestStatus.PENDING },
     });
     if (existingRequest) {
       throw new Error('You already have a pending request for this book');
@@ -82,16 +89,14 @@ export class BorrowRequestsService {
     }
 
     book.availableCopies -= 1;
-    
+
     if (book.availableCopies === 0) {
       book.status = BookStatus.BORROWED;
     }
-    
+
     await this.bookRepository.save(book);
 
-
     await this.borrowedBooksService.createBorrow(request.userId, book.id);
-
 
     request.status = BorrowRequestStatus.APPROVED;
     return this.borrowRequestRepository.save(request);
@@ -114,7 +119,10 @@ export class BorrowRequestsService {
     return this.borrowRequestRepository.save(request);
   }
 
-  async cancelRequest(requestId: number, userId: number): Promise<BorrowRequest> {
+  async cancelRequest(
+    requestId: number,
+    userId: number,
+  ): Promise<BorrowRequest> {
     const request = await this.borrowRequestRepository.findOne({
       where: { id: requestId, userId },
     });
@@ -130,4 +138,3 @@ export class BorrowRequestsService {
     return this.borrowRequestRepository.remove(request);
   }
 }
-

@@ -1,4 +1,13 @@
-import { Controller, Post, Get, Delete, Param, Body, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Delete,
+  Param,
+  Body,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { BorrowRequestsService } from './borrow-requests.service';
 import { JwtGuard } from '../auth/jwtGuard.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -10,8 +19,15 @@ export class BorrowRequestsController {
   constructor(private readonly borrowRequestsService: BorrowRequestsService) {}
 
   @Post()
-  async createRequest(@Body() body: { bookId: number; notes?: string }, @Req() req) {
-    return this.borrowRequestsService.createRequest(req.user.id, body.bookId, body.notes);
+  async createRequest(
+    @Body() body: { bookId: number; notes?: string },
+    @Req() req,
+  ) {
+    return this.borrowRequestsService.createRequest(
+      req.user.id,
+      body.bookId,
+      body.notes,
+    );
   }
 
   @Get()

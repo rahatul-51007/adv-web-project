@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Book, BookStatus } from './books.entity';
@@ -21,16 +25,14 @@ export class BooksService {
   ) {}
 
   async create(bookData: Partial<Book>): Promise<Book> {
-    
     if (bookData.totalCopies && !bookData.availableCopies) {
       bookData.availableCopies = bookData.totalCopies;
     }
-    
-   
+
     if (!bookData.genre) {
       bookData.genre = 'General';
     }
-    
+
     const book = this.bookRepository.create(bookData);
     return this.bookRepository.save(book);
   }
@@ -49,41 +51,38 @@ export class BooksService {
 
   async update(id: number, bookData: Partial<Book>): Promise<Book> {
     await this.findOne(id);
-    
-    
+
     if (bookData.totalCopies && !bookData.availableCopies) {
       bookData.availableCopies = bookData.totalCopies;
     }
-    
+
     await this.bookRepository.update(id, bookData);
     return this.findOne(id);
   }
 
   async remove(id: number): Promise<void> {
     const book = await this.findOne(id);
-    
-    
+
     if (book.availableCopies < book.totalCopies) {
       throw new BadRequestException(
-        `Cannot delete book. ${book.totalCopies - book.availableCopies} copy/copies are currently borrowed. All copies must be returned before deletion.`
+        `Cannot delete book. ${book.totalCopies - book.availableCopies} copy/copies are currently borrowed. All copies must be returned before deletion.`,
       );
     }
-    
-    
+
     await this.borrowRequestRepository.delete({ bookId: id });
     await this.returnRequestRepository.delete({ bookId: id });
     await this.borrowedBookRepository.delete({ bookId: id });
-    
+
     await this.bookRepository.remove(book);
   }
 
   async borrowBook(bookId: number, user: User): Promise<Book> {
     const book = await this.findOne(bookId);
-    
+
     if (book.availableCopies <= 0) {
       throw new BadRequestException('No copies available for borrowing');
     }
-    
+
     if (book.status !== BookStatus.AVAILABLE) {
       throw new BadRequestException('Book is not available for borrowing');
     }
@@ -93,7 +92,7 @@ export class BooksService {
     book.borrowedAt = new Date();
     book.dueDate = new Date();
     book.dueDate.setDate(book.dueDate.getDate() + 14); // 14 days borrowing period
-    
+
     if (book.availableCopies === 0) {
       book.status = BookStatus.BORROWED;
     }
@@ -103,7 +102,7 @@ export class BooksService {
 
   async returnBook(bookId: number, user: User): Promise<Book> {
     const book = await this.findOne(bookId);
-    
+
     if (book.borrowedBy?.id !== user.id) {
       throw new BadRequestException('You have not borrowed this book');
     }
@@ -120,10 +119,12 @@ export class BooksService {
   async searchBooks(query: string): Promise<Book[]> {
     return this.bookRepository
       .createQueryBuilder('book')
-      .where('book.title ILIKE :query OR book.author ILIKE :query OR book.genre ILIKE :query', {
-        query: `%${query}%`,
-      })
+      .where(
+        'book.title ILIKE :query OR book.author ILIKE :query OR book.genre ILIKE :query',
+        {
+          query: `%${query}%`,
+        },
+      )
       .getMany();
   }
 }
-

@@ -79,11 +79,9 @@ export class BorrowedBooksService {
       throw new Error('Book is already returned');
     }
 
-
     const book = borrowedBook.book;
     book.availableCopies += 1;
     await this.bookRepository.save(book);
-
 
     borrowedBook.returnDate = new Date();
     borrowedBook.status = BorrowStatus.RETURNED;
@@ -97,7 +95,9 @@ export class BorrowedBooksService {
       .leftJoinAndSelect('borrowedBook.book', 'book')
       .leftJoinAndSelect('borrowedBook.user', 'user')
       .where('borrowedBook.dueDate < :today', { today })
-      .andWhere('borrowedBook.status = :status', { status: BorrowStatus.ACTIVE })
+      .andWhere('borrowedBook.status = :status', {
+        status: BorrowStatus.ACTIVE,
+      })
       .getMany();
   }
 }

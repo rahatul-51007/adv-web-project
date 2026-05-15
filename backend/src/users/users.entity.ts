@@ -1,8 +1,10 @@
-import { Column, 
-    CreateDateColumn, 
-    Entity, 
-    PrimaryGeneratedColumn , 
-    UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 export enum Role {
   ADMIN = 'admin',
@@ -26,11 +28,7 @@ export class User {
   @Column()
   lastName: string;
 
-  @Column(
-    { type: 'enum', 
-      enum: Role, 
-      default: Role.MEMBER},
-  )
+  @Column({ type: 'enum', enum: Role, default: Role.MEMBER })
   role: Role;
 
   @Column({ default: true })

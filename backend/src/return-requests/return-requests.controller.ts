@@ -1,4 +1,13 @@
-import { Controller, Post, Get, Param, UseGuards, Req, Body, ParseIntPipe } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Param,
+  UseGuards,
+  Req,
+  Body,
+  ParseIntPipe,
+} from '@nestjs/common';
 import { ReturnRequestsService } from './return-requests.service';
 import { JwtGuard } from '../auth/jwtGuard.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -11,11 +20,17 @@ export class ReturnRequestsController {
 
   @Post()
   async createReturnRequest(@Req() req, @Body() body: { borrowId: number }) {
-    return this.returnRequestsService.createReturnRequest(req.user.id, body.borrowId);
+    return this.returnRequestsService.createReturnRequest(
+      req.user.id,
+      body.borrowId,
+    );
   }
 
   @Post('return-request')
-  async createReturnRequestAlias(@Req() req, @Body() body: { borrowId: number }) {
+  async createReturnRequestAlias(
+    @Req() req,
+    @Body() body: { borrowId: number },
+  ) {
     return this.createReturnRequest(req, body);
   }
 

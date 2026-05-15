@@ -7,7 +7,10 @@ import { BorrowedBooksModule } from '../borrowed-books/borrowed-books.module';
 import { Book } from '../books/books.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ReturnRequest, Book]), BorrowedBooksModule],
+  imports: [
+    TypeOrmModule.forFeature([ReturnRequest, Book]),
+    BorrowedBooksModule,
+  ],
   controllers: [ReturnRequestsController],
   providers: [ReturnRequestsService],
 })
