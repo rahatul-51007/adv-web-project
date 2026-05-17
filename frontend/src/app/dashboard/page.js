@@ -30,9 +30,6 @@ export default function DashboardPage() {
 
   return (
     <div className="bg-light min-vh-100">
-      {/* Debug Info - Remove in production */}
-      {console.log('Dashboard User:', user, 'Role:', user?.role, 'Is Admin:', user?.role?.toLowerCase() === 'admin')}
-      
       <Navbar />
       {user?.role === 'admin' ? <AdminDashboard /> : <UserDashboard />}
     </div>

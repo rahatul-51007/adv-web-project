@@ -53,7 +53,6 @@ export default function ForgotPasswordForm() {
           </div>
 
           <div className="card-body p-4 p-sm-5 bg-white">
-            {/* Error Alert */}
             {error && (
               <div className="alert alert-danger d-flex align-items-center py-2 px-3 mb-4 rounded-3" role="alert">
                 <i className="bi bi-exclamation-triangle-fill me-2"></i>
@@ -61,7 +60,6 @@ export default function ForgotPasswordForm() {
               </div>
             )}
 
-            {/* Success Alert */}
             {success && (
               <div className="alert alert-success d-flex align-items-center py-2 px-3 mb-4 rounded-3" role="alert">
                 <i className="bi bi-check-circle-fill me-2"></i>
@@ -73,7 +71,6 @@ export default function ForgotPasswordForm() {
 
             {!success ? (
               <>
-                {/* Instructions */}
                 <div className="alert alert-info d-flex align-items-center py-2 px-3 mb-4 rounded-3" role="alert">
                   <i className="bi bi-info-circle-fill me-2"></i>
                   <div>
@@ -81,9 +78,7 @@ export default function ForgotPasswordForm() {
                   </div>
                 </div>
 
-                {/* Form */}
                 <form onSubmit={handleSubmit(onSubmit)}>
-                  {/* Email Field */}
                   <div className="form-floating mb-4">
                     <input
                       {...register('email', {
@@ -104,7 +99,6 @@ export default function ForgotPasswordForm() {
                     )}
                   </div>
 
-                  {/* Submit Button */}
                   <button
                     type="submit"
                     disabled={isLoading}

@@ -178,7 +178,6 @@ export default function ResetPasswordForm() {
     <div className="d-flex align-items-center justify-content-center min-vh-100 bg-light py-5">
       <div className="container" style={{ maxWidth: '450px' }}>
         <div className="card shadow-lg border-0 rounded-4 overflow-hidden">
-          {/* Header Section */}
           <div className="bg-info text-white text-center py-5 px-4">
             <i className="bi bi-shield-lock-fill mb-3" style={{ fontSize: '3rem' }}></i>
             <h2 className="fw-bold mb-1">Reset Password</h2>
@@ -186,7 +185,6 @@ export default function ResetPasswordForm() {
           </div>
 
           <div className="card-body p-4 p-sm-5 bg-white">
-            {/* Error Alert */}
             {error && (
               <div className="alert alert-danger d-flex align-items-center py-2 px-3 mb-4 rounded-3" role="alert">
                 <i className="bi bi-exclamation-triangle-fill me-2"></i>
@@ -194,9 +192,7 @@ export default function ResetPasswordForm() {
               </div>
             )}
 
-            {/* Form */}
             <form onSubmit={handleSubmit(onSubmit)}>
-              {/* New Password Field */}
               <div className="form-floating mb-3">
                 <input
                   {...register('newPassword', {
@@ -217,7 +213,6 @@ export default function ResetPasswordForm() {
                 )}
               </div>
 
-              {/* Confirm Password Field */}
               <div className="form-floating mb-4">
                 <input
                   {...register('confirmPassword', {
@@ -234,7 +229,6 @@ export default function ResetPasswordForm() {
                 )}
               </div>
 
-              {/* Password Requirements */}
               <div className="alert alert-info d-flex align-items-center py-2 px-3 mb-4 rounded-3" role="alert">
                 <i className="bi bi-info-circle-fill me-2"></i>
                 <div className="small">
@@ -242,7 +236,6 @@ export default function ResetPasswordForm() {
                 </div>
               </div>
 
-              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={isLoading}
@@ -261,8 +254,7 @@ export default function ResetPasswordForm() {
                 )}
               </button>
             </form>
-
-            {/* Back to Login */}
+            
             <div className="text-center">
               <Link href="/login" className="text-decoration-none text-primary fw-bold">
                 <i className="bi bi-arrow-left me-2"></i>

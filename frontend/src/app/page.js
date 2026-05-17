@@ -12,7 +12,6 @@ export default function Home() {
 
   return (
     <div className="d-flex flex-column min-vh-100 bg-light">
-      {/* Hero Section */}
       <div className="flex-grow-1 d-flex align-items-center bg-white border-bottom shadow-sm">
         <div className="container py-5">
           <div className="row align-items-center g-5">
@@ -50,7 +49,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Features Section */}
       <div className="container py-5">
         <div className="row g-4 py-5 row-cols-1 row-cols-lg-3">
           <div className="col d-flex align-items-start">
@@ -83,7 +81,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Footer */}
       <footer className="mt-auto py-3 bg-white border-top">
         <div className="container text-center">
           <span className="text-muted">© 2026 Library Management System. All rights reserved.</span>

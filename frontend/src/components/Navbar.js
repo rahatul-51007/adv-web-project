@@ -15,18 +15,15 @@ export default function Navbar() {
   return (
     <nav className="navbar navbar-expand-md navbar-light bg-white border-bottom sticky-top shadow-sm">
       <div className="container-fluid px-4">
-        {/* Logo and Brand */}
         <Link href="/dashboard" className="navbar-brand d-flex align-items-center">
           <div className="bg-primary text-white rounded p-2 me-2 shadow-sm d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px' }}>
             <i className="bi bi-book-half fs-5"></i>
           </div>
           <div>
             <span className="fw-bold fs-5 text-dark d-block lh-1 mb-1">Library Management</span>
-            {/* <small className="text-muted" style={{ fontSize: '0.75rem' }}>Professional System</small> */}
           </div>
         </Link>
 
-        {/* Mobile Menu Button */}
         <button
           className="navbar-toggler border-0 shadow-none"
           type="button"
@@ -37,10 +34,8 @@ export default function Navbar() {
           <span className="navbar-toggler-icon"></span>
         </button>
 
-        {/* Navigation Links and User Menu */}
         <div className={`collapse navbar-collapse ${isMobileMenuOpen ? 'show' : ''}`} id="navbarContent">
           <div className="ms-auto d-flex align-items-center justify-content-end flex-wrap gap-3 mt-3 mt-md-0">
-            {/* User Info */}
             <div className="d-flex align-items-center bg-light border rounded-pill px-3 py-1 shadow-sm">
               <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold me-2" style={{ width: '32px', height: '32px', fontSize: '0.9rem' }}>
                 {user?.firstName?.[0] || 'U'}
@@ -55,7 +50,6 @@ export default function Navbar() {
               </div>
             </div>
 
-            {/* Logout Button */}
             <button
               onClick={handleLogout}
               className="btn btn-danger rounded-pill px-4 shadow-sm fw-medium d-flex align-items-center gap-2"

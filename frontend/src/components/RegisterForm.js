@@ -33,8 +33,6 @@ export default function RegisterForm() {
       if (!response.ok) {
         throw new Error(result.message || 'Registration failed');
       }
-
-      // Registration successful, redirect to login page
       window.location.href = '/login';
     } catch (err) {
       setError(err.message);
@@ -46,9 +44,7 @@ export default function RegisterForm() {
   return (
     <div className="d-flex align-items-center justify-content-center min-vh-100 bg-light py-5">
       <div className="container" style={{ maxWidth: '550px' }}>
-        {/* White Card Container */}
         <div className="card shadow-lg border-0 rounded-4 overflow-hidden">
-          {/* Header Section */}
           <div className="bg-success text-white text-center py-4 px-4">
             <i className="bi bi-person-plus-fill mb-2" style={{ fontSize: '2.5rem' }}></i>
             <h2 className="fw-bold mb-1">Create Account</h2>
@@ -56,7 +52,6 @@ export default function RegisterForm() {
           </div>
 
           <div className="card-body p-4 p-sm-5 bg-white">
-            {/* Error Alert */}
             {error && (
               <div className="alert alert-danger d-flex align-items-center py-2 px-3 mb-4 rounded-3" role="alert">
                 <i className="bi bi-exclamation-triangle-fill me-2"></i>
@@ -64,9 +59,7 @@ export default function RegisterForm() {
               </div>
             )}
 
-            {/* Form */}
             <form onSubmit={handleSubmit(onSubmit)}>
-              {/* Name Fields */}
               <div className="row g-3 mb-3">
                 <div className="col-md-6 form-floating">
                   <input
@@ -108,7 +101,6 @@ export default function RegisterForm() {
                 </div>
               </div>
 
-              {/* Email Field */}
               <div className="form-floating mb-3">
                 <input
                   {...register('email', {
@@ -129,7 +121,6 @@ export default function RegisterForm() {
                 )}
               </div>
 
-              {/* Password Fields */}
               <div className="form-floating mb-3">
                 <input
                   {...register('password', {
@@ -168,7 +159,7 @@ export default function RegisterForm() {
                 )}
               </div>
 
-              {/* Role Field */}
+
               <div className="form-floating mb-3">
                 <select
                   {...register('role', { required: 'Role is required' })}
@@ -185,7 +176,7 @@ export default function RegisterForm() {
                 )}
               </div>
 
-              {/* Terms and Conditions */}
+
               <div className="form-check mb-4">
                 <input className="form-check-input" type="checkbox" id="termsCheck" required />
                 <label className="form-check-label text-muted small" htmlFor="termsCheck">
@@ -196,7 +187,7 @@ export default function RegisterForm() {
                 </label>
               </div>
 
-              {/* Submit Button */}
+
               <button
                 type="submit"
                 disabled={isLoading}
@@ -216,7 +207,7 @@ export default function RegisterForm() {
               </button>
             </form>
 
-            {/* Divider */}
+
             <div className="position-relative text-center mb-4">
               <hr className="text-muted" />
               <span className="position-absolute top-50 start-50 translate-middle bg-white px-3 text-muted small">
@@ -224,7 +215,7 @@ export default function RegisterForm() {
               </span>
             </div>
 
-            {/* Sign In Link */}
+ 
             <div className="text-center">
               <span className="text-muted">Already have an account? </span>
               <Link href="/login" className="text-decoration-none text-primary fw-bold">

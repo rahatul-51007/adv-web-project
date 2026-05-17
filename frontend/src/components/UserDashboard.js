@@ -91,7 +91,6 @@ export default function UserDashboard() {
 
   const handleBorrowRequest = async (bookId) => {
     try {
-      // Check if member already has this book borrowed (not returned yet)
       const hasBook = borrowedBooks.some(b => b.book?.id === bookId);
       if (hasBook) {
         setCannotRequestReason('You already have this book. Please return it first before requesting again.');
@@ -99,7 +98,6 @@ export default function UserDashboard() {
         return;
       }
 
-      // Check if member already has a pending request for this book
       const hasPendingRequest = borrowRequests.some(r => r.book?.id === bookId && r.status?.toLowerCase() === 'pending');
       if (hasPendingRequest) {
         setCannotRequestReason('You already have a pending request for this book. Please wait for admin approval.');
@@ -201,7 +199,6 @@ export default function UserDashboard() {
 
   return (
     <div className="container py-5">
-      {/* Toast Notification */}
       {toastMessage && (
         <div className={`toast position-fixed bottom-0 end-0 m-4 ${toastType === 'success' ? 'bg-success' : 'bg-danger'} text-white rounded-3 shadow-lg`} style={{ zIndex: 9999 }}>
           <div className="d-flex align-items-center p-3 gap-3">
@@ -211,7 +208,6 @@ export default function UserDashboard() {
         </div>
       )}
 
-      {/* Cannot Request Modal */}
       {showCannotRequestModal && (
         <div className="modal fade show d-block bg-dark bg-opacity-50" tabIndex="-1" role="dialog">
           <div className="modal-dialog modal-dialog-centered" role="document">
@@ -251,7 +247,6 @@ export default function UserDashboard() {
         </div>
       )}
 
-      {/* Cancel Confirmation Modal */}
       {showCancelConfirmModal && (
         <div className="modal fade show d-block bg-dark bg-opacity-50" tabIndex="-1" role="dialog">
           <div className="modal-dialog modal-dialog-centered" role="document">
@@ -296,7 +291,6 @@ export default function UserDashboard() {
         </div>
       )}
 
-      {/* Header */}
       <div className="card border-0 shadow-sm rounded-4 mb-4">
         <div className="card-body p-4 d-flex flex-column flex-md-row align-items-center justify-content-between">
           <div className="mb-3 mb-md-0 text-center text-md-start">
@@ -308,7 +302,6 @@ export default function UserDashboard() {
             </p>
           </div>
           
-          {/* User Avatar */}
           <div className="d-flex align-items-center gap-3">
             <div className="text-end d-none d-sm-block">
               <p className="fw-semibold text-dark mb-0 lh-1">
@@ -325,7 +318,6 @@ export default function UserDashboard() {
         </div>
       </div>
 
-      {/* Stats Cards */}
       <div className="row g-4 mb-5">
         <div className="col-sm-6 col-lg-3">
           <div className="card border-0 shadow-sm rounded-4 h-100">
@@ -384,7 +376,6 @@ export default function UserDashboard() {
         </div>
       </div>
 
-      {/* Tab Navigation */}
       <div className="card border-0 shadow-sm rounded-4 mb-4">
         <div className="card-header bg-white border-bottom-0 pt-3 pb-0">
           <ul className="nav nav-tabs border-bottom-0 gap-2">
@@ -415,7 +406,6 @@ export default function UserDashboard() {
         </div>
       </div>
 
-      {/* Available Books Tab */}
       {activeTab === 'available' && (
         <>
           <div className="card border-0 shadow-sm rounded-4 mb-4">
@@ -499,7 +489,6 @@ export default function UserDashboard() {
         </>
       )}
 
-      {/* Borrowed Books Tab */}
       {activeTab === 'borrowed' && (
         <div className="row g-4">
           {borrowedBooks.map((borrow) => (
@@ -556,7 +545,6 @@ export default function UserDashboard() {
         </div>
       )}
 
-      {/* Borrow Requests Tab */}
       {activeTab === 'requests' && (
         <>
           <div className="row g-4">

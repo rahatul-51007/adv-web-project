@@ -4,9 +4,6 @@ import { useAuth } from '../contexts/AuthContext';
 
 export default function AdminDashboard() {
   const { token, user } = useAuth();
-  
-  // Debug info
-  console.log('AdminDashboard rendered - User:', user, 'Role:', user?.role);
   const [books, setBooks] = useState([]);
   const [users, setUsers] = useState([]);
   const [borrowRequests, setBorrowRequests] = useState([]);
@@ -33,7 +30,6 @@ export default function AdminDashboard() {
   const [showCannotDeleteModal, setShowCannotDeleteModal] = useState(false);
   const [cannotDeleteReason, setCannotDeleteReason] = useState('');
 
-  // Clear messages after 3 seconds
   useEffect(() => {
     if (successMessage) {
       const timer = setTimeout(() => setSuccessMessage(''), 3000);
@@ -127,15 +123,12 @@ export default function AdminDashboard() {
       };
 
       if (!editingBook) {
-        // New book: all copies are available
         payload.availableCopies = payload.totalCopies;
       } else {
-        // Existing book: calculate borrowed count and adjust available copies
         const oldTotalCopies = Number(editingBook.totalCopies) || 1;
         const oldAvailableCopies = Number(editingBook.availableCopies) || 1;
         const borrowedBooks = oldTotalCopies - oldAvailableCopies;
         
-        // New available = new total - borrowed (maintain borrowed count)
         payload.availableCopies = Math.max(0, payload.totalCopies - borrowedBooks);
       }
 
@@ -178,7 +171,6 @@ export default function AdminDashboard() {
 
   const handleDeleteBook = (book) => {
     setErrorMessage('');
-    // Check if book has borrowed copies
     const borrowedCopies = Number(book.totalCopies) - Number(book.availableCopies);
     if (borrowedCopies > 0) {
       setCannotDeleteReason(`This book cannot be deleted. ${borrowedCopies} copy/ies are currently borrowed by members.`);
@@ -282,12 +274,9 @@ export default function AdminDashboard() {
       const updated = { ...current, [field]: next };
 
       if (field === 'totalCopies' && editingBook) {
-        // Calculate borrowed books based on current state
         const oldTotalCopies = Number(current.totalCopies) || 1;
         const oldAvailableCopies = Number(current.availableCopies) || 1;
         const borrowedBooks = oldTotalCopies - oldAvailableCopies;
-        
-        // Calculate new available copies maintaining borrowed count
         updated.availableCopies = Math.max(0, next - borrowedBooks);
       }
 
@@ -313,7 +302,6 @@ export default function AdminDashboard() {
 
   return (
     <div className="container py-5">
-      {/* Success and Error Messages */}
       {successMessage && (
         <div className="alert alert-success alert-dismissible fade show d-flex align-items-center mb-4 rounded-3" role="alert">
           <i className="bi bi-check-circle-fill me-2"></i>
@@ -330,7 +318,6 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Stats Cards */}
       <div className="row g-4 mb-5">
         <div className="col-sm-6 col-lg-3">
           <div className="card border-0 shadow-sm rounded-4 h-100">
@@ -389,7 +376,6 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Tab Navigation */}
       <div className="card border-0 shadow-sm rounded-4 mb-4">
         <div className="card-header bg-white border-bottom-0 pt-3 pb-0">
           <ul className="nav nav-tabs border-bottom-0 gap-2">
@@ -416,12 +402,8 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Books Tab */}
       {activeTab === 'books' && (
-        <>
-          {/* Debug Info - Remove in production */}
-          {console.log('Active Tab:', activeTab, 'Show Book Form:', showBookForm)}
-          
+        <>         
           <div className="card border-0 shadow-sm rounded-4 mb-4">
             <div className="card-body p-4 d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
               <div className="position-relative w-100" style={{ maxWidth: '400px' }}>
@@ -448,7 +430,6 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* Book Form Modal */}
           {showBookForm && (
             <div className="modal fade show d-block bg-dark bg-opacity-50" tabIndex="-1" role="dialog">
               <div className="modal-dialog modal-dialog-centered modal-lg" role="document">
@@ -615,7 +596,6 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* Delete Confirmation Modal */}
           {showDeleteConfirmModal && bookToDelete && (
             <div className="modal fade show d-block bg-dark bg-opacity-50" tabIndex="-1" role="dialog">
               <div className="modal-dialog modal-dialog-centered" role="document">
@@ -672,7 +652,6 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* Cannot Delete Modal */}
           {showCannotDeleteModal && (
             <div className="modal fade show d-block bg-dark bg-opacity-50" tabIndex="-1" role="dialog">
               <div className="modal-dialog modal-dialog-centered" role="document">
@@ -712,7 +691,6 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* Books List */}
           <div className="card border-0 shadow-sm rounded-4">
             {isLoading ? (
               <div className="d-flex justify-content-center py-5">
@@ -797,7 +775,6 @@ export default function AdminDashboard() {
         </>
       )}
 
-      {/* Users Tab */}
       {activeTab === 'users' && (
         <div className="card border-0 shadow-sm rounded-4">
           <div className="table-responsive">
@@ -857,7 +834,6 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Borrow Requests Tab */}
       {activeTab === 'requests' && (
         <div className="card border-0 shadow-sm rounded-4">
           <div className="table-responsive">
@@ -938,7 +914,6 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Return Requests Tab */}
       {activeTab === 'return-requests' && (
         <div className="card border-0 shadow-sm rounded-4">
           <div className="table-responsive">
