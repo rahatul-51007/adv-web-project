@@ -11,6 +11,12 @@ export default function UserDashboard() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('available');
   const [isLoading, setIsLoading] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState('success'); // 'success' or 'error'
+  const [showCannotRequestModal, setShowCannotRequestModal] = useState(false);
+  const [cannotRequestReason, setCannotRequestReason] = useState('');
+  const [showCancelConfirmModal, setShowCancelConfirmModal] = useState(false);
+  const [requestToCancel, setRequestToCancel] = useState(null);
 
   useEffect(() => {
     fetchBooks();
@@ -58,6 +64,13 @@ export default function UserDashboard() {
     }
   };
 
+  const showToast = (message, type = 'success', duration = 3000) => {
+    setToastMessage(message);
+    setToastType(type);
+    const timer = setTimeout(() => setToastMessage(''), duration);
+    return () => clearTimeout(timer);
+  };
+
   const fetchReturnRequests = async () => {
     try {
       const response = await fetch('http://localhost:5000/return-requests/my-requests', {
@@ -78,6 +91,22 @@ export default function UserDashboard() {
 
   const handleBorrowRequest = async (bookId) => {
     try {
+      // Check if member already has this book borrowed (not returned yet)
+      const hasBook = borrowedBooks.some(b => b.book?.id === bookId);
+      if (hasBook) {
+        setCannotRequestReason('You already have this book. Please return it first before requesting again.');
+        setShowCannotRequestModal(true);
+        return;
+      }
+
+      // Check if member already has a pending request for this book
+      const hasPendingRequest = borrowRequests.some(r => r.book?.id === bookId && r.status?.toLowerCase() === 'pending');
+      if (hasPendingRequest) {
+        setCannotRequestReason('You already have a pending request for this book. Please wait for admin approval.');
+        setShowCannotRequestModal(true);
+        return;
+      }
+
       const response = await fetch(`http://localhost:5000/books/${bookId}/borrow`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` }
@@ -86,57 +115,71 @@ export default function UserDashboard() {
       if (response.ok) {
         fetchBorrowRequests();
         fetchBooks();
-        // Show success message
-        alert('Book request submitted successfully!');
+        showToast('Book requested successfully!', 'success', 3000);
       } else {
         const errorData = await response.json();
-        alert(errorData.message || 'Failed to request book');
+        setCannotRequestReason(errorData.message || 'Failed to request book');
+        setShowCannotRequestModal(true);
       }
     } catch (error) {
       console.error('Error requesting book:', error);
-      alert('Network error. Please try again.');
+      setCannotRequestReason('Network error. Please try again.');
+      setShowCannotRequestModal(true);
     }
   };
 
   const handleReturnBook = async (borrowId) => {
-    if (confirm('Are you sure you want to request a return for this book?')) {
-      try {
-        const response = await fetch('http://localhost:5000/return-requests', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({ borrowId })
-        });
+    try {
+      const response = await fetch('http://localhost:5000/return-requests', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ borrowId })
+      });
 
-        if (response.ok) {
-          fetchReturnRequests();
-          fetchBorrowedBooks();
-          alert('Return request submitted. Admin must approve it.');
-        } else {
-          const errorData = await response.json();
-          alert(errorData.message || 'Failed to submit return request');
-        }
-      } catch (error) {
-        console.error('Error requesting return:', error);
-        alert('Network error. Please try again.');
+      if (response.ok) {
+        fetchReturnRequests();
+        fetchBorrowedBooks();
+        showToast('Return request submitted. Admin will process it.', 'success', 3000);
+      } else {
+        const errorData = await response.json();
+        setCannotRequestReason(errorData.message || 'Failed to submit return request');
+        setShowCannotRequestModal(true);
       }
+    } catch (error) {
+      console.error('Error requesting return:', error);
+      setCannotRequestReason('Network error. Please try again.');
+      setShowCannotRequestModal(true);
     }
   };
 
-  const handleCancelRequest = async (requestId) => {
-    if (confirm('Are you sure you want to cancel this request?')) {
-      try {
-        await fetch(`http://localhost:5000/borrow-requests/${requestId}`, {
-          method: 'DELETE',
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        fetchBorrowRequests();
-      } catch (error) {
-        console.error('Error canceling request:', error);
-      }
+  const handleCancelRequest = (requestId) => {
+    setRequestToCancel(requestId);
+    setShowCancelConfirmModal(true);
+  };
+
+  const confirmCancelRequest = async () => {
+    if (!requestToCancel) return;
+    try {
+      await fetch(`http://localhost:5000/borrow-requests/${requestToCancel}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      showToast('Request cancelled successfully!', 'success');
+      fetchBorrowRequests();
+      setShowCancelConfirmModal(false);
+      setRequestToCancel(null);
+    } catch (error) {
+      console.error('Error canceling request:', error);
+      showToast('Failed to cancel request', 'error');
     }
+  };
+
+  const cancelCancelRequest = () => {
+    setShowCancelConfirmModal(false);
+    setRequestToCancel(null);
   };
 
   const filteredBooks = books.filter(book => 
@@ -158,6 +201,101 @@ export default function UserDashboard() {
 
   return (
     <div className="container py-5">
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className={`toast position-fixed bottom-0 end-0 m-4 ${toastType === 'success' ? 'bg-success' : 'bg-danger'} text-white rounded-3 shadow-lg`} style={{ zIndex: 9999 }}>
+          <div className="d-flex align-items-center p-3 gap-3">
+            <i className={`bi ${toastType === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-circle-fill'} fs-5`}></i>
+            <span className="fw-medium">{toastMessage}</span>
+          </div>
+        </div>
+      )}
+
+      {/* Cannot Request Modal */}
+      {showCannotRequestModal && (
+        <div className="modal fade show d-block bg-dark bg-opacity-50" tabIndex="-1" role="dialog">
+          <div className="modal-dialog modal-dialog-centered" role="document">
+            <div className="modal-content border-0 rounded-4 shadow-lg">
+              <div className="modal-header border-0 pb-0 pt-4 px-4">
+                <h5 className="modal-title fw-bold fs-5">
+                  Cannot Request Book
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowCannotRequestModal(false)}
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div className="modal-body p-4">
+                <div className="alert alert-warning d-flex align-items-center mb-3 rounded-3" role="alert">
+                  <i className="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                  <div className="fw-medium">Request Not Allowed</div>
+                </div>
+                <p className="text-dark mb-0">
+                  {cannotRequestReason}
+                </p>
+              </div>
+              <div className="modal-footer border-0 pt-0 px-4 pb-4">
+                <button
+                  type="button"
+                  className="btn btn-primary rounded-pill px-4"
+                  onClick={() => setShowCannotRequestModal(false)}
+                >
+                  <i className="bi bi-check-circle me-2"></i>
+                  OK
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Cancel Confirmation Modal */}
+      {showCancelConfirmModal && (
+        <div className="modal fade show d-block bg-dark bg-opacity-50" tabIndex="-1" role="dialog">
+          <div className="modal-dialog modal-dialog-centered" role="document">
+            <div className="modal-content border-0 rounded-4 shadow-lg">
+              <div className="modal-header border-0 pb-0 pt-4 px-4">
+                <h5 className="modal-title fw-bold fs-5">
+                  <i className="bi bi-exclamation-circle me-2 text-warning"></i>
+                  Cancel Request
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={cancelCancelRequest}
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div className="modal-body p-4">
+                <p className="text-dark">
+                  Are you sure you want to cancel this request? This action cannot be undone.
+                </p>
+              </div>
+              <div className="modal-footer border-0 pt-0 px-4 pb-4 gap-2">
+                <button
+                  type="button"
+                  className="btn btn-secondary rounded-pill px-4"
+                  onClick={cancelCancelRequest}
+                >
+                  <i className="bi bi-x-circle me-2"></i>
+                  No, Keep It
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-danger rounded-pill px-4"
+                  onClick={confirmCancelRequest}
+                >
+                  <i className="bi bi-check-circle me-2"></i>
+                  Yes, Cancel Request
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="card border-0 shadow-sm rounded-4 mb-4">
         <div className="card-body p-4 d-flex flex-column flex-md-row align-items-center justify-content-between">
@@ -516,3 +654,5 @@ export default function UserDashboard() {
     </div>
   );
 }
+
+

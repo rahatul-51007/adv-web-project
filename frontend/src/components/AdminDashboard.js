@@ -28,6 +28,10 @@ export default function AdminDashboard() {
     totalCopies: 1,
     availableCopies: 1,
   });
+  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
+  const [bookToDelete, setBookToDelete] = useState(null);
+  const [showCannotDeleteModal, setShowCannotDeleteModal] = useState(false);
+  const [cannotDeleteReason, setCannotDeleteReason] = useState('');
 
   // Clear messages after 3 seconds
   useEffect(() => {
@@ -123,9 +127,16 @@ export default function AdminDashboard() {
       };
 
       if (!editingBook) {
+        // New book: all copies are available
         payload.availableCopies = payload.totalCopies;
-      } else if (payload.availableCopies > payload.totalCopies) {
-        payload.availableCopies = payload.totalCopies;
+      } else {
+        // Existing book: calculate borrowed count and adjust available copies
+        const oldTotalCopies = Number(editingBook.totalCopies) || 1;
+        const oldAvailableCopies = Number(editingBook.availableCopies) || 1;
+        const borrowedBooks = oldTotalCopies - oldAvailableCopies;
+        
+        // New available = new total - borrowed (maintain borrowed count)
+        payload.availableCopies = Math.max(0, payload.totalCopies - borrowedBooks);
       }
 
       const response = await fetch(url, {
@@ -165,29 +176,49 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleDeleteBook = async (bookId) => {
-    if (confirm('Are you sure you want to delete this book? This action cannot be undone.')) {
-      setErrorMessage('');
-      setSuccessMessage('');
-      
-      try {
-        const response = await fetch(`http://localhost:5000/books/${bookId}`, {
-          method: 'DELETE',
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        
-        if (response.ok) {
-          fetchBooks();
-          setSuccessMessage('Book deleted successfully!');
-        } else {
-          const errorData = await response.json();
-          setErrorMessage(errorData.message || 'Failed to delete book');
-        }
-      } catch (error) {
-        console.error('Error deleting book:', error);
-        setErrorMessage('Network error. Please try again.');
-      }
+  const handleDeleteBook = (book) => {
+    setErrorMessage('');
+    // Check if book has borrowed copies
+    const borrowedCopies = Number(book.totalCopies) - Number(book.availableCopies);
+    if (borrowedCopies > 0) {
+      setCannotDeleteReason(`This book cannot be deleted. ${borrowedCopies} copy/ies are currently borrowed by members.`);
+      setShowCannotDeleteModal(true);
+      return;
     }
+    setBookToDelete(book);
+    setShowDeleteConfirmModal(true);
+  };
+
+  const confirmDeleteBook = async () => {
+    if (!bookToDelete) return;
+    
+    setErrorMessage('');
+    setSuccessMessage('');
+    setShowDeleteConfirmModal(false);
+    
+    try {
+      const response = await fetch(`http://localhost:5000/books/${bookToDelete.id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (response.ok) {
+        fetchBooks();
+        setSuccessMessage('Book deleted successfully!');
+        setBookToDelete(null);
+      } else {
+        const errorData = await response.json();
+        setErrorMessage(errorData.message || 'Failed to delete book');
+      }
+    } catch (error) {
+      console.error('Error deleting book:', error);
+      setErrorMessage('Network error. Please try again.');
+    }
+  };
+
+  const cancelDeleteBook = () => {
+    setShowDeleteConfirmModal(false);
+    setBookToDelete(null);
   };
 
   const handleEditBook = (book) => {
@@ -250,10 +281,14 @@ export default function AdminDashboard() {
       const next = Math.max(1, currentValue + delta);
       const updated = { ...current, [field]: next };
 
-      if (field === 'totalCopies') {
-        updated.availableCopies = editingBook
-          ? Math.min(current.availableCopies ?? next, next)
-          : next;
+      if (field === 'totalCopies' && editingBook) {
+        // Calculate borrowed books based on current state
+        const oldTotalCopies = Number(current.totalCopies) || 1;
+        const oldAvailableCopies = Number(current.availableCopies) || 1;
+        const borrowedBooks = oldTotalCopies - oldAvailableCopies;
+        
+        // Calculate new available copies maintaining borrowed count
+        updated.availableCopies = Math.max(0, next - borrowedBooks);
       }
 
       return updated;
@@ -294,39 +329,6 @@ export default function AdminDashboard() {
           <button type="button" className="btn-close ms-auto" onClick={() => setErrorMessage('')}></button>
         </div>
       )}
-
-      {/* Header */}
-      <div className="card border-0 shadow-sm rounded-4 mb-4 bg-danger bg-opacity-10 border-danger">
-        <div className="card-body p-4">
-          <div className="text-center mb-3">
-            <div className="badge bg-danger text-white fs-6 mb-2 px-3 py-2">
-              <i className="bi bi-shield-fill-exclamation me-2"></i>
-              ADMIN ONLY DASHBOARD
-            </div>
-            <h1 className="h2 fw-bold text-danger mb-1">
-              Admin Control Panel
-            </h1>
-            <p className="text-muted mb-0">
-              User: {user?.firstName} {user?.lastName} | Role: {user?.role}
-            </p>
-          </div>
-          <div className="d-flex justify-content-center gap-2">
-            <button
-              onClick={() => {
-                fetchBooks();
-                fetchUsers();
-                fetchBorrowRequests();
-                fetchReturnRequests();
-                setSuccessMessage('Dashboard refreshed successfully!');
-              }}
-              className="btn btn-danger rounded-pill px-4 shadow-sm"
-            >
-              <i className="bi bi-arrow-clockwise me-2"></i>
-              Refresh Data
-            </button>
-          </div>
-        </div>
-      </div>
 
       {/* Stats Cards */}
       <div className="row g-4 mb-5">
@@ -444,20 +446,6 @@ export default function AdminDashboard() {
                 Add New Book
               </button>
             </div>
-          </div>
-
-          {/* Fallback Add Book Button - Always Visible */}
-          <div className="text-center mb-4">
-            <button
-              onClick={() => {
-                console.log('Fallback Add Book button clicked!');
-                setShowBookForm(true);
-              }}
-              className="btn btn-primary btn-lg rounded-pill px-5 shadow-lg"
-            >
-              <i className="bi bi-plus-lg me-2"></i>
-              Add Book (Fallback)
-            </button>
           </div>
 
           {/* Book Form Modal */}
@@ -627,6 +615,103 @@ export default function AdminDashboard() {
             </div>
           )}
 
+          {/* Delete Confirmation Modal */}
+          {showDeleteConfirmModal && bookToDelete && (
+            <div className="modal fade show d-block bg-dark bg-opacity-50" tabIndex="-1" role="dialog">
+              <div className="modal-dialog modal-dialog-centered" role="document">
+                <div className="modal-content border-0 rounded-4 shadow-lg">
+                  <div className="modal-header border-0 pb-0 pt-4 px-4">
+                    <h5 className="modal-title fw-bold fs-5">
+                      Delete Book
+                    </h5>
+                    <button
+                      type="button"
+                      className="btn-close"
+                      onClick={cancelDeleteBook}
+                      aria-label="Close"
+                    ></button>
+                  </div>
+                  <div className="modal-body p-4">
+                    <div className="alert alert-warning d-flex align-items-center mb-3 rounded-3" role="alert">
+                      <i className="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                      <div className="fw-medium">This action cannot be undone.</div>
+                    </div>
+                    <p className="text-dark mb-3">
+                      Are you sure you want to delete the book <strong>"{bookToDelete.title}"</strong> by <strong>{bookToDelete.author}</strong>?
+                    </p>
+                    <div className="bg-light p-3 rounded-3 mb-4">
+                      <div className="d-flex justify-content-between align-items-center mb-2">
+                        <span className="text-muted small">Total Copies:</span>
+                        <strong>{bookToDelete.totalCopies}</strong>
+                      </div>
+                      <div className="d-flex justify-content-between align-items-center">
+                        <span className="text-muted small">Available:</span>
+                        <strong>{bookToDelete.availableCopies}</strong>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="modal-footer border-0 pt-0 px-4 pb-4">
+                    <button
+                      type="button"
+                      className="btn btn-light border rounded-pill px-4"
+                      onClick={cancelDeleteBook}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-danger rounded-pill px-4 shadow-sm"
+                      onClick={confirmDeleteBook}
+                    >
+                      <i className="bi bi-trash-fill me-2"></i>
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Cannot Delete Modal */}
+          {showCannotDeleteModal && (
+            <div className="modal fade show d-block bg-dark bg-opacity-50" tabIndex="-1" role="dialog">
+              <div className="modal-dialog modal-dialog-centered" role="document">
+                <div className="modal-content border-0 rounded-4 shadow-lg">
+                  <div className="modal-header border-0 pb-0 pt-4 px-4">
+                    <h5 className="modal-title fw-bold fs-5">
+                      Cannot Delete Book
+                    </h5>
+                    <button
+                      type="button"
+                      className="btn-close"
+                      onClick={() => setShowCannotDeleteModal(false)}
+                      aria-label="Close"
+                    ></button>
+                  </div>
+                  <div className="modal-body p-4">
+                    <div className="alert alert-danger d-flex align-items-center mb-4 rounded-3" role="alert">
+                      <i className="bi bi-exclamation-circle-fill me-2 fs-5"></i>
+                      <div className="fw-medium">Delete Not Allowed</div>
+                    </div>
+                    <p className="text-dark mb-0">
+                      {cannotDeleteReason}
+                    </p>
+                  </div>
+                  <div className="modal-footer border-0 pt-0 px-4 pb-4">
+                    <button
+                      type="button"
+                      className="btn btn-primary rounded-pill px-4"
+                      onClick={() => setShowCannotDeleteModal(false)}
+                    >
+                      <i className="bi bi-check-circle me-2"></i>
+                      OK
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Books List */}
           <div className="card border-0 shadow-sm rounded-4">
             {isLoading ? (
@@ -688,7 +773,7 @@ export default function AdminDashboard() {
                               Edit
                             </button>
                             <button
-                              onClick={() => handleDeleteBook(book.id)}
+                              onClick={() => handleDeleteBook(book)}
                               className="btn btn-sm btn-outline-danger rounded-pill px-3"
                             >
                               Delete

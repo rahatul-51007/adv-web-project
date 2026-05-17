@@ -22,7 +22,7 @@ export default function Navbar() {
           </div>
           <div>
             <span className="fw-bold fs-5 text-dark d-block lh-1 mb-1">Library Management</span>
-            <small className="text-muted" style={{ fontSize: '0.75rem' }}>Professional System</small>
+            {/* <small className="text-muted" style={{ fontSize: '0.75rem' }}>Professional System</small> */}
           </div>
         </Link>
 
@@ -39,30 +39,7 @@ export default function Navbar() {
 
         {/* Navigation Links and User Menu */}
         <div className={`collapse navbar-collapse ${isMobileMenuOpen ? 'show' : ''}`} id="navbarContent">
-          <ul className="navbar-nav me-auto mb-2 mb-md-0 ms-md-4">
-            <li className="nav-item">
-              <Link href="/dashboard" className="nav-link text-dark fw-medium px-3 rounded hover-bg-light">
-                Dashboard
-              </Link>
-            </li>
-            {user?.role?.toLowerCase() === 'admin' && (
-              <>
-                <li className="nav-item">
-                  <Link href="/dashboard?tab=users" className="nav-link text-dark fw-medium px-3 rounded hover-bg-light">
-                    Users
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link href="/dashboard?tab=books" className="nav-link text-dark fw-medium px-3 rounded hover-bg-light">
-                    Books
-                  </Link>
-                </li>
-              </>
-            )}
-          </ul>
-
-          <div className="d-flex align-items-center flex-wrap gap-3 mt-3 mt-md-0">
-            
+          <div className="ms-auto d-flex align-items-center justify-content-end flex-wrap gap-3 mt-3 mt-md-0">
             {/* User Info */}
             <div className="d-flex align-items-center bg-light border rounded-pill px-3 py-1 shadow-sm">
               <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold me-2" style={{ width: '32px', height: '32px', fontSize: '0.9rem' }}>
