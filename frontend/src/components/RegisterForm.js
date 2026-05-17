@@ -118,7 +118,7 @@ export default function RegisterForm() {
                       message: 'Invalid email format',
                     },
                   })}
-                  type="email"
+                  type="text"
                   className={`form-control ${errors.email ? 'is-invalid' : ''}`}
                   id="floatingRegEmail"
                   placeholder="name@example.com"

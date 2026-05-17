@@ -45,7 +45,14 @@ export default function LoginForm() {
   return (
     <div className="d-flex align-items-center justify-content-center min-vh-100 bg-light py-5">
       <div className="container" style={{ maxWidth: '450px' }}>
-        <div className="card shadow-lg border-0 rounded-4 overflow-hidden">
+        <div className="card shadow-lg border-0 rounded-4 overflow-hidden position-relative">
+          {/* Home Icon */}
+          <Link href="/" className="position-absolute top-0 start-0 mt-3 ms-3 text-white text-decoration-none" style={{ zIndex: 10 }}>
+            <i className="bi bi-house-fill" style={{ fontSize: '1.5rem', transition: 'transform 0.2s' }} 
+              onMouseEnter={(e) => e.target.style.transform = 'scale(1.2)'} 
+              onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}></i>
+          </Link>
+          
           {/* Header Section */}
           <div className="bg-primary text-white text-center py-5 px-4">
             <i className="bi bi-book-half mb-3" style={{ fontSize: '3rem' }}></i>
@@ -74,7 +81,7 @@ export default function LoginForm() {
                       message: 'Invalid email format',
                     },
                   })}
-                  type="email"
+                  type="text"
                   className={`form-control ${errors.email ? 'is-invalid' : ''}`}
                   id="floatingEmail"
                   placeholder="name@example.com"
